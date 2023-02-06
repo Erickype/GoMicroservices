@@ -14,8 +14,8 @@ import (
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Checking application health")
 	response := map[string]string{
-		"status" : "UP",
-		"timestamp" : time.Now().String(),
+		"status":    "UP",
+		"timestamp": time.Now().String(),
 	}
 
 	json.NewEncoder(w).Encode(response)
@@ -30,11 +30,20 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 func detailsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Fetching details")
 	hostname, err := details.GetHostName()
-	
-	if err != nil{
+
+	if err != nil {
 		panic(err)
 	}
-	fmt.Println(hostname)
+
+	ip := details.GetLocalIP()
+	fmt.Println(hostname, ip)
+
+	response := map[string]string{
+		"hostname": hostname,
+		"ip":       ip,
+	}
+
+	json.NewEncoder(w).Encode(response)
 }
 
 func main() {
