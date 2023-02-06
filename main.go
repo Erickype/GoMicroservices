@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Erickype/GoMicroservices/details"
 	"github.com/gorilla/mux"
 )
 
@@ -26,10 +27,22 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Application up and running")
 }
 
+func detailsHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Fetching details")
+	hostname, err := details.GetHostName()
+	
+	if err != nil{
+		panic(err)
+	}
+	fmt.Println(hostname)
+}
+
 func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/health", healthHandler)
+
+	r.HandleFunc("/details", detailsHandler)
 
 	r.HandleFunc("/", rootHandler)
 
