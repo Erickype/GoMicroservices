@@ -1,22 +1,28 @@
 package main
 
 import (
-    "fmt"
-    "net/http"
+	"encoding/json"
+	"log"
+	"net/http"
+	"time"
 
-    "github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 )
 
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Checking application health")
+	response := map[string]string{
+		"status" : "UP",
+		"timestamp" : time.Now().String(),
+	}
+
+	json.NewEncoder(w).Encode(response)
+}
+
 func main() {
-    r := mux.NewRouter()
+	r := mux.NewRouter()
 
-    r.HandleFunc("/books/{title}/page/{page}", func(w http.ResponseWriter, r *http.Request) {
-        vars := mux.Vars(r)
-        title := vars["title"]
-        page := vars["page"]
+	r.HandleFunc("/health", healthHandler)
 
-        fmt.Fprintf(w, "You've requested the book: %s on page %s\n", title, page)
-    })
-
-    http.ListenAndServe(":80", r)
+	log.Fatal(http.ListenAndServe(":80", r))
 }
