@@ -55,5 +55,7 @@ func main() {
 
 	r.HandleFunc("/", rootHandler)
 
+	log.Println("Server has started!!")
+
 	log.Fatal(http.ListenAndServe(":80", r))
 }
