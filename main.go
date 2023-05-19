@@ -11,12 +11,12 @@ import (
 )
 
 func main() {
-	logger := log.New(os.Stdout, "coffee-api", log.LstdFlags)
+	logger := log.New(os.Stdout, "products-api", log.LstdFlags)
 
 	productsHandler := handlers.NewProducts(logger)
 
 	serveMux := http.NewServeMux()
-	serveMux.Handle("/", productsHandler)
+	serveMux.Handle("/products", productsHandler)
 
 	server := &http.Server{
 		Addr:         ":9090",
