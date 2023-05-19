@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"github.com/Erickype/GoMicroservices/handlers"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"time"
 )
 
@@ -24,5 +26,20 @@ func main() {
 		IdleTimeout:  120 * time.Second,
 	}
 
-	_ = server.ListenAndServe()
+	go func() {
+		err := server.ListenAndServe()
+		if err != nil {
+			logger.Fatal(err)
+		}
+	}()
+
+	signalChannel := make(chan os.Signal)
+	signal.Notify(signalChannel, os.Interrupt)
+	signal.Notify(signalChannel, os.Kill)
+
+	sig := <-signalChannel
+	log.Println("Received terminated, graceful shutdown", sig)
+
+	timeoutContext, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	_ = server.Shutdown(timeoutContext)
 }
