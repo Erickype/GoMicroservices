@@ -1,61 +1,45 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+	"context"
+	"github.com/Erickype/GoMicroservices/handlers"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
-
-	"github.com/Erickype/GoMicroservices/details"
-	"github.com/gorilla/mux"
 )
 
-func healthHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Checking application health")
-	response := map[string]string{
-		"status":    "UP",
-		"timestamp": time.Now().String(),
-	}
-
-	json.NewEncoder(w).Encode(response)
-}
-
-func rootHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Serving home page")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Application up and running")
-}
-
-func detailsHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Fetching details")
-	hostname, err := details.GetHostName()
-
-	if err != nil {
-		panic(err)
-	}
-
-	ip := details.GetLocalIP()
-	fmt.Println(hostname, ip)
-
-	response := map[string]string{
-		"hostname": hostname,
-		"ip":       ip,
-	}
-
-	json.NewEncoder(w).Encode(response)
-}
-
 func main() {
-	r := mux.NewRouter()
+	logger := log.New(os.Stdout, "bonsai-api", log.LstdFlags)
 
-	r.HandleFunc("/health", healthHandler)
+	helloHandler := handlers.NewHello(logger)
 
-	r.HandleFunc("/details", detailsHandler)
+	serveMux := http.NewServeMux()
+	serveMux.Handle("/hello", helloHandler)
 
-	r.HandleFunc("/", rootHandler)
+	server := &http.Server{
+		Addr:         ":9090",
+		Handler:      serveMux,
+		ReadTimeout:  1 * time.Second,
+		WriteTimeout: 1 * time.Second,
+		IdleTimeout:  120 * time.Second,
+	}
 
-	log.Println("Server has started!!")
+	go func() {
+		err := server.ListenAndServe()
+		if err != nil {
+			logger.Fatal(err)
+		}
+	}()
 
-	log.Fatal(http.ListenAndServe(":80", r))
+	signalChannel := make(chan os.Signal)
+	signal.Notify(signalChannel, os.Interrupt)
+	signal.Notify(signalChannel, os.Kill)
+
+	sig := <-signalChannel
+	log.Println("Received terminated, graceful shutdown", sig)
+
+	timeoutContext, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	_ = server.Shutdown(timeoutContext)
 }
