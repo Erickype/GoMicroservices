@@ -1,24 +1,19 @@
 package main
 
 import (
-	"fmt"
-	"io"
+	"github.com/Erickype/GoMicroservices/handlers"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
-	http.HandleFunc("/hello", func(writer http.ResponseWriter, request *http.Request) {
-		log.Println("Hello word!!")
-		data, err := io.ReadAll(request.Body)
-		if err != nil {
-			http.Error(writer, "Oops", http.StatusBadRequest)
-			return
-		}
-		_, _ = fmt.Fprintf(writer, "Hello %s!", data)
-	})
-	err := http.ListenAndServe(":9090", nil)
-	if err != nil {
-		panic(err)
-	}
+	logger := log.New(os.Stdout, "bonsai-api", log.LstdFlags)
+
+	helloHandler := handlers.NewHello(logger)
+
+	serveMux := http.NewServeMux()
+	serveMux.Handle("/hello", helloHandler)
+
+	_ = http.ListenAndServe(":9090", serveMux)
 }
