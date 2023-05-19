@@ -11,12 +11,14 @@ import (
 )
 
 func main() {
-	logger := log.New(os.Stdout, "bonsai-api", log.LstdFlags)
+	logger := log.New(os.Stdout, "coffee-api", log.LstdFlags)
 
 	helloHandler := handlers.NewHello(logger)
+	productsHandler := handlers.NewProducts(logger)
 
 	serveMux := http.NewServeMux()
 	serveMux.Handle("/hello", helloHandler)
+	serveMux.Handle("/products", productsHandler)
 
 	server := &http.Server{
 		Addr:         ":9090",
