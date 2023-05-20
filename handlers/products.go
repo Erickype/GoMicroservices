@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"github.com/Erickype/GoMicroservices/data"
 	"github.com/gorilla/mux"
 	"log"
@@ -31,12 +32,7 @@ func (p *Products) GetProducts(rw http.ResponseWriter, _ *http.Request) {
 
 func (p *Products) AddProduct(rw http.ResponseWriter, r *http.Request) {
 	p.logger.Println("Handle POST product")
-	product := &data.Product{}
-	err := product.FromJSON(r.Body)
-	if err != nil {
-		http.Error(rw, "Unable to unmarshal JSON", http.StatusBadRequest)
-		return
-	}
+	product := r.Context().Value(KeyProduct{}).(*data.Product)
 	data.AddProduct(product)
 }
 
@@ -50,12 +46,8 @@ func (p *Products) UpdateProduct(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product := &data.Product{}
-	err = product.FromJSON(r.Body)
-	if err != nil {
-		http.Error(rw, "Unable to unmarshal JSON", http.StatusBadRequest)
-		return
-	}
+	product := r.Context().Value(KeyProduct{}).(*data.Product)
+
 	err = data.UpdateProduct(id, product)
 	if err == data.ErrProductNotFound {
 		http.Error(rw, "Product not found", http.StatusNotFound)
@@ -65,4 +57,23 @@ func (p *Products) UpdateProduct(rw http.ResponseWriter, r *http.Request) {
 		http.Error(rw, "Product not found", http.StatusInternalServerError)
 		return
 	}
+}
+
+type KeyProduct struct{}
+
+func (p *Products) MiddlewareProductValidation(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		product := &data.Product{}
+		err := product.FromJSON(r.Body)
+		if err != nil {
+			p.logger.Println("Error deserializing product!", err)
+			http.Error(rw, "Error reading product", http.StatusBadRequest)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), KeyProduct{}, product)
+		r = r.WithContext(ctx)
+
+		next.ServeHTTP(rw, r)
+	})
 }
