@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/Erickype/GoMicroservices/handlers"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"os"
@@ -15,8 +16,13 @@ func main() {
 
 	productsHandler := handlers.NewProducts(logger)
 
-	serveMux := http.NewServeMux()
-	serveMux.Handle("/", productsHandler)
+	serveMux := mux.NewRouter()
+
+	getRouter := serveMux.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/", productsHandler.GetProducts)
+
+	putRouter := serveMux.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/{id:[0-9]+}", productsHandler.UpdateProduct)
 
 	server := &http.Server{
 		Addr:         ":9090",
@@ -40,6 +46,7 @@ func main() {
 	sig := <-signalChannel
 	log.Println("Received terminated, graceful shutdown", sig)
 
-	timeoutContext, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 	_ = server.Shutdown(timeoutContext)
 }
