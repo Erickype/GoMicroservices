@@ -30,7 +30,7 @@ func (p *Products) GetProducts(rw http.ResponseWriter, _ *http.Request) {
 	}
 }
 
-func (p *Products) AddProduct(rw http.ResponseWriter, r *http.Request) {
+func (p *Products) AddProduct(_ http.ResponseWriter, r *http.Request) {
 	p.logger.Println("Handle POST product")
 	product := r.Context().Value(KeyProduct{}).(*data.Product)
 	data.AddProduct(product)
