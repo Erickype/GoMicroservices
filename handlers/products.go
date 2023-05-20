@@ -1,67 +1,45 @@
+// Package classification of Product API.
+//
+// documentation for Product API
+//
+//	Schemes: http
+//	BasePath: /
+//	Version: 1.0.0
+//
+//	Consumes:
+//	- application/json
+//
+//	Produces:
+//	- application/json
+//
+// swagger:meta
 package handlers
 
 import (
 	"context"
 	"fmt"
 	"github.com/Erickype/GoMicroservices/data"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
-	"strconv"
 )
 
+// Products struct that describes a handler that have a *log.Logger reference for log information
 type Products struct {
 	logger *log.Logger
 }
 
+// NewProducts function that creates a Products struct that acts as a handler
 func NewProducts(logger *log.Logger) *Products {
 	return &Products{
 		logger: logger,
 	}
 }
 
-func (p *Products) GetProducts(rw http.ResponseWriter, _ *http.Request) {
-	p.logger.Println("Handle GET products")
-
-	products := data.GetProducts()
-	err := products.ToJSON(rw)
-	if err != nil {
-		http.Error(rw, "Unable to marshal", http.StatusInternalServerError)
-		return
-	}
-}
-
-func (p *Products) AddProduct(_ http.ResponseWriter, r *http.Request) {
-	p.logger.Println("Handle POST product")
-	product := r.Context().Value(KeyProduct{}).(*data.Product)
-	data.AddProduct(product)
-}
-
-func (p *Products) UpdateProduct(rw http.ResponseWriter, r *http.Request) {
-	p.logger.Println("Handle PUT product")
-	vars := mux.Vars(r)
-
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		http.Error(rw, "Invalid ID", http.StatusBadRequest)
-		return
-	}
-
-	product := r.Context().Value(KeyProduct{}).(*data.Product)
-
-	err = data.UpdateProduct(id, product)
-	if err == data.ErrProductNotFound {
-		http.Error(rw, "Product not found", http.StatusNotFound)
-		return
-	}
-	if err != nil {
-		http.Error(rw, "Product not found", http.StatusInternalServerError)
-		return
-	}
-}
-
+// KeyProduct struct to create a context with value
 type KeyProduct struct{}
 
+// MiddlewareProductValidation is a middleware that validates a product
+// checking if it can be deserialized and if it has valid fields.
 func (p *Products) MiddlewareProductValidation(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		product := &data.Product{}
