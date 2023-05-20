@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"github.com/Erickype/GoMicroservices/data"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
-	"path"
 	"strconv"
 )
 
@@ -18,31 +18,7 @@ func NewProducts(logger *log.Logger) *Products {
 	}
 }
 
-func (p *Products) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		p.getProducts(rw, r)
-		return
-	}
-	if r.Method == http.MethodPost {
-		p.addProduct(rw, r)
-		return
-	}
-	if r.Method == http.MethodPut {
-		p.logger.Println("Handle PUT product")
-		idString := path.Base(r.URL.Path)
-		id, err := strconv.Atoi(idString)
-		if err != nil {
-			http.Error(rw, "Invalid URI", http.StatusBadRequest)
-			return
-		}
-		p.updateProduct(id, rw, r)
-		return
-	}
-
-	rw.WriteHeader(http.StatusMethodNotAllowed)
-}
-
-func (p *Products) getProducts(rw http.ResponseWriter, _ *http.Request) {
+func (p *Products) GetProducts(rw http.ResponseWriter, r *http.Request) {
 	p.logger.Println("Handle GET products")
 
 	products := data.GetProducts()
@@ -53,7 +29,7 @@ func (p *Products) getProducts(rw http.ResponseWriter, _ *http.Request) {
 	}
 }
 
-func (p *Products) addProduct(rw http.ResponseWriter, r *http.Request) {
+func (p *Products) AddProduct(rw http.ResponseWriter, r *http.Request) {
 	p.logger.Println("Handle POST product")
 	product := &data.Product{}
 	err := product.FromJSON(r.Body)
@@ -64,10 +40,18 @@ func (p *Products) addProduct(rw http.ResponseWriter, r *http.Request) {
 	data.AddProduct(product)
 }
 
-func (p *Products) updateProduct(id int, rw http.ResponseWriter, r *http.Request) {
+func (p *Products) UpdateProduct(rw http.ResponseWriter, r *http.Request) {
 	p.logger.Println("Handle PUT product")
+	vars := mux.Vars(r)
+
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(rw, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
 	product := &data.Product{}
-	err := product.FromJSON(r.Body)
+	err = product.FromJSON(r.Body)
 	if err != nil {
 		http.Error(rw, "Unable to unmarshal JSON", http.StatusBadRequest)
 		return
