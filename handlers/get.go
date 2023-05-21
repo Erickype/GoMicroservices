@@ -6,12 +6,14 @@ import (
 )
 
 // GetProducts returns the list of products from the data store
-// @Summary	get products
-// @Description  Returns all products from data source
-// @Tags         products
-// @Produce      json
-// @Success      200 {object}   data.Products
-// @Router       /products [get]
+//
+//	@Summary		get products
+//	@Description	Returns all products from data source
+//	@Tags			products
+//	@Produce		json
+//	@Success		200	{object}	data.Products
+//	@Failure		500
+//	@Router			/products [get]
 func (p *Products) GetProducts(rw http.ResponseWriter, _ *http.Request) {
 	p.logger.Println("Handle GET products")
 
