@@ -5,12 +5,15 @@ import (
 	"net/http"
 )
 
-// swagger:route GET /products products listProducts
-// Returns the list of products
-// responses:
-//  200: productsResponse
-
 // GetProducts returns the list of products from the data store
+//
+//	@Summary		Returns the list of products
+//	@Description	Returns all products from data source
+//	@Tags			products
+//	@Produce		json
+//	@Success		200	{object}	data.Products
+//	@Failure		500
+//	@Router			/products [get]
 func (p *Products) GetProducts(rw http.ResponseWriter, _ *http.Request) {
 	p.logger.Println("Handle GET products")
 

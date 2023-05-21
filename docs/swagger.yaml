@@ -1,0 +1,113 @@
+basePath: /
+definitions:
+  data.Product:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      sku:
+        type: string
+    required:
+    - name
+    - sku
+    type: object
+host: localhost:9090
+info:
+  contact:
+    email: erickype@hotmail.com
+    name: Erickype
+  description: This is the documentation for Products API.
+  title: Products API
+  version: 1.0.0
+paths:
+  /products:
+    get:
+      description: Returns all products from data source
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/data.Product'
+            type: array
+        "500":
+          description: Internal Server Error
+      summary: Returns the list of products
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      description: Creates a product by passing the "data.Product" model
+      parameters:
+      - description: New product
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/data.Product'
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Creates a product
+      tags:
+      - products
+    put:
+      consumes:
+      - application/json
+      description: Updates a product by passing its ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated product
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/data.Product'
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Updates a product
+      tags:
+      - products
+  /products/{id}:
+    delete:
+      description: Deletes a product based on its ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Deletes a product
+      tags:
+      - products
+swagger: "2.0"
