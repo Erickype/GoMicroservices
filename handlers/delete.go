@@ -7,12 +7,13 @@ import (
 	"strconv"
 )
 
-// swagger:route DELETE /products/{id} products deleteProduct
-// Deletes a product from data source based on its ID
-// responses:
-//  201: noContent
-
 // DeleteProduct deletes a product from data source based on its ID
+// @Summary      Delete a product
+// @Description  Delete a product based on its ID
+// @Tags         products
+// @Param        id   path      int  true  "Account ID"
+// @Success      202
+// @Router       /products/{id} [delete]
 func (p *Products) DeleteProduct(rw http.ResponseWriter, r *http.Request) {
 	p.logger.Println("Handle DELETE product")
 	vars := mux.Vars(r)

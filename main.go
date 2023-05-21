@@ -12,6 +12,15 @@ import (
 	"time"
 )
 
+// @title Products API
+// @version 1.0.0
+// @description This is the documentation for Products API.
+
+// @contact.name Erickype
+// @contact.email erickype@hotmail.com
+
+// @host localhost:9090
+// @BasePath /
 func main() {
 	logger := log.New(os.Stdout, "products-api", log.LstdFlags)
 
@@ -37,7 +46,7 @@ func main() {
 	sh := middleware.Redoc(opts, nil)
 
 	getRouter.Handle("/docs", sh)
-	getRouter.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+	getRouter.Handle("/swagger.yaml", http.FileServer(http.Dir("./docs/")))
 
 	server := &http.Server{
 		Addr:         ":9090",
