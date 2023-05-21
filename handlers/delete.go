@@ -8,12 +8,15 @@ import (
 )
 
 // DeleteProduct deletes a product from data source based on its ID
-// @Summary      Delete a product
-// @Description  Delete a product based on its ID
-// @Tags         products
-// @Param        id   path      int  true  "Account ID"
-// @Success      202
-// @Router       /products/{id} [delete]
+//
+//	@Summary		Delete a product
+//	@Description	Delete a product based on its ID
+//	@Tags			products
+//	@Param			id	path	int	true	"Product ID"
+//	@Success		202
+//	@Failure		400
+//	@Failure		500
+//	@Router			/products/{id} [delete]
 func (p *Products) DeleteProduct(rw http.ResponseWriter, r *http.Request) {
 	p.logger.Println("Handle DELETE product")
 	vars := mux.Vars(r)
