@@ -7,7 +7,7 @@ import (
 
 // GetProducts returns the list of products from the data store
 //
-//	@Summary		get products
+//	@Summary		Returns the list of products
 //	@Description	Returns all products from data source
 //	@Tags			products
 //	@Produce		json

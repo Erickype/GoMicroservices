@@ -9,8 +9,8 @@ import (
 
 // DeleteProduct deletes a product from data source based on its ID
 //
-//	@Summary		Delete a product
-//	@Description	Delete a product based on its ID
+//	@Summary		Deletes a product
+//	@Description	Deletes a product based on its ID
 //	@Tags			products
 //	@Param			id	path	int	true	"Product ID"
 //	@Success		202
